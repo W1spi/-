@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Effect - Sapere Aude</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: black;
+            color: lime;
+            font-family: monospace;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix"></canvas>
+    <script>
+        const canvas = document.getElementById("matrix");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()".split("");
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(0);
+
+        const message = "SAPERE AUDE".split("");
+        const messagePositions = [];
+        const centerX = Math.floor(columns / 2 - message.length / 2);
+
+        message.forEach((char, index) => {
+            messagePositions.push({ col: centerX + index, char, fixed: false });
+        });
+
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "lime";
+            ctx.font = `${fontSize}px monospace`;
+
+            for (let i = 0; i < drops.length; i++) {
+                let drawChar = letters[Math.floor(Math.random() * letters.length)];
+                let yPos = drops[i] * fontSize;
+                
+                const found = messagePositions.find(pos => pos.col === i);
+                if (found && yPos > canvas.height / 2 - fontSize) {
+                    drawChar = found.char;
+                    yPos = canvas.height / 2 - fontSize;
+                    found.fixed = true;
+                }
+                
+                ctx.fillText(drawChar, i * fontSize, yPos);
+                
+                if (!found || !found.fixed) {
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+        }
+
+        setInterval(drawMatrix, 50);
+    </script>
+</body>
+</html>
